@@ -1,16 +1,20 @@
-const { ApolloServer, gql } = require('apollo-server');
+const {
+    ApolloServer,
+    gql
+} = require('apollo-server');
 
 // tanda ! menandakan bahwa tidak boleh null 
 // tanda ! didalam array mendakan bahwa array tidak boleh null
-const typeDefs = gql`
+const typeDefs = gql `
     type Query {
-        hello: String
+        hello(name: String): String
         user: User
     }  
 
     type User {
         id: ID!
-        username: String!
+        username: String
+        firstLatterOfUsername: String
     }
     
     type Error {
@@ -31,40 +35,68 @@ const typeDefs = gql`
 
     type Mutation {
         register(userInfo: UserInfo!): RegisterResponse!
-        login(userInfo: UserInfo!): Boolean!
+        login(userInfo: UserInfo!): String!
     }
 `;
 
 const resolvers = {
+    User: {
+        firstLatterOfUsername: parent => {
+            return parent.username ? parent.username[0] : null;
+        } 
+        // username: parent => {
+        //     return parent.username
+        // }
+    },
     Query: {
-        hello: () => null,
+        hello: (parent, {
+            name
+        }) => {
+            return ` hey ${name}`
+        },
         user: () => ({
             id: 1,
             username: "mufrad"
         })
     },
     Mutation: {
-        login: () => true,
-        register: () =>({
-            errors: [
-            {
-                field: 'username',
-                message: 'bad'
-            },
-            {
-                field: 'username2',
-                message: 'bad2'
-                
+        login: async (parent, {
+            userInfo: {
+                username
             }
+        }, args, context) => {
+            // check the password
+            // await checkPassword(password);
+            return username
+        },
+        register: () => ({
+            errors: [{
+                    field: 'username',
+                    message: 'bad'
+                },
+                {
+                    field: 'username2',
+                    message: 'bad2'
+
+                }
             ],
             user: {
                 id: 1,
-                username: "mufrad"
+                // username: "mufrad"
             }
         })
     }
 }
 
-const server = new ApolloServer({ typeDefs, resolvers });
+const server = new ApolloServer({
+    typeDefs,
+    resolvers,
+    context: (req, res) => ({
+        req,
+        res
+    })
+});
 
-server.listen().then(({ url }) => console.log(`server started at ${url}`));
+server.listen().then(({
+    url
+}) => console.log(`server started at ${url}`));
