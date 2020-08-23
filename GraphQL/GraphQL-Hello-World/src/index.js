@@ -1,102 +1,70 @@
-const {
-    ApolloServer,
-    gql
-} = require('apollo-server');
+const { ApolloServer, gql } = require("apollo-server");
 
-// tanda ! menandakan bahwa tidak boleh null 
-// tanda ! didalam array mendakan bahwa array tidak boleh null
-const typeDefs = gql `
-    type Query {
-        hello(name: String): String
-        user: User
-    }  
+// type checking
+// query vs. mutation
+// objects
+// arrays
+// arguments
 
-    type User {
-        id: ID!
-        username: String
-        firstLatterOfUsername: String
-    }
-    
-    type Error {
-        field: String!
-        message: String!
-    }
+// crud
 
-    type RegisterResponse {
-        errors: [Error!]!
-        user: User
-    }
-
-    input UserInfo {
-        username: String!, 
-        password: String!, 
-        age: Int
-    }
-
-    type Mutation {
-        register(userInfo: UserInfo!): RegisterResponse!
-        login(userInfo: UserInfo!): String!
-    }
+const typeDefs = gql`
+  type Query {
+    hello: String
+    user: User
+  }
+  type User {
+    id: ID!
+    username: String!
+  }
+  type Error {
+    field: String!
+    message: String!
+  }
+  type RegisterResponse {
+    errors: [Error!]!
+    user: User
+  }
+  input UserInfo {
+    username: String!
+    password: String!
+    age: Int
+  }
+  type Mutation {
+    register(userInfo: UserInfo!): RegisterResponse!
+    login(userInfo: UserInfo!): Boolean!
+  }
 `;
 
 const resolvers = {
-    User: {
-        firstLatterOfUsername: parent => {
-            return parent.username ? parent.username[0] : null;
-        } 
-        // username: parent => {
-        //     return parent.username
-        // }
-    },
-    Query: {
-        hello: (parent, {
-            name
-        }) => {
-            return ` hey ${name}`
-        },
-        user: () => ({
-            id: 1,
-            username: "mufrad"
-        })
-    },
-    Mutation: {
-        login: async (parent, {
-            userInfo: {
-                username
-            }
-        }, args, context) => {
-            // check the password
-            // await checkPassword(password);
-            return username
-        },
-        register: () => ({
-            errors: [{
-                    field: 'username',
-                    message: 'bad'
-                },
-                {
-                    field: 'username2',
-                    message: 'bad2'
-
-                }
-            ],
-            user: {
-                id: 1,
-                // username: "mufrad"
-            }
-        })
-    }
-}
-
-const server = new ApolloServer({
-    typeDefs,
-    resolvers,
-    context: (req, res) => ({
-        req,
-        res
+  Query: {
+    hello: () => null,
+    user: () => ({
+      id: 1,
+      username: "bob"
     })
-});
+  },
+  Mutation: {
+    login: () => true,
+    register: () => ({
+      errors: [
+        {
+          field: "username",
+          message: "bad"
+        },
+        {
+          field: "username2",
+          message: "bad2"
+        }
+      ],
+      user: {
+        id: 1,
+        username: "bob"
+      }
+    })
+  }
+};
 
-server.listen().then(({
-    url
-}) => console.log(`server started at ${url}`));
+const server = new ApolloServer({ typeDefs, resolvers });
+
+server.listen().then(({ url }) => console.log(`server started at ${url}`));
