@@ -1,0 +1,2 @@
+# Cheat Sheet GraphQL
+!['cheat sheet'](https://raw.githubusercontent.com/sogko/graphql-shorthand-notation-cheat-sheet/master/graphql-shorthand-notation-cheat-sheet.png)
